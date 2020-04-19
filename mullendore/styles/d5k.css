@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer+SC&family=Merriweather:ital,wght@0,400;0,700;1,400;1,700');
+
+body {
+  color: #444;
+  background-color: #fdfaf1;
+  font-family: 'Merriweather', Georgia, serif;
+  margin: 0;
+  max-width: 100%;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+p {
+  margin: 1.3rem 0;
+  text-align: justify;
+}
+
+p > ul,
+div > ul {
+  margin: 1.3rem 0;
+}
+
+li {
+  text-align: justify;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'IM Fell Great Primer SC', serif;
+  font-weight: inherit;
+}
+
+.page .header a {
+    font-family: 'IM Fell Great Primer SC', serif;
+    color: rgba(235, 220, 200, 0.9) !important;
+    text-shadow: -1px -1px 3px #fff !important!;
+    font-size: 4rem !important;
+}
+
+h1 {
+  margin: 2rem 0 1.3rem 0;
+  font-size: 3rem;
+  text-align: center;
+}
+
+h2 {
+  margin: 2rem 0 1.3rem 0;
+  font-size: 2rem;
+  border-bottom: solid 2px #444;
+}
+
+h3 {
+  margin: 2rem 0 1rem 0;
+  font-size: 1.5rem;
+}
+
+h4 {
+  margin: 2rem 0 1rem 0;
+  font-size: 1rem;
+}
+
+h5 {
+  margin: 2rem 0 1rem 0;
+  font-size: 1rem;
+  font-style: italic;
+}
+
+h6 {
+  margin: 2rem 0 1rem 0;
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+small {
+  font-size: .75em;
+}
+
+pre,
+code {
+  font-family: Menlo, Monaco, "Courier New", monospace;
+}
+
+pre {
+  background-color: #f1f1f1;
+  font-size: .8rem;
+  overflow-x: scroll;
+  padding: 1rem;
+}
+
+a,
+a:visited {
+  color: #3498db;
+}
+
+a:hover,
+a:focus,
+a:active {
+  color: #2980b9;
+}
+
+a.reference,
+a.reference:visited {
+  color: #444;
+  text-decoration: underline;
+  text-decoration-color: #dddad1;
+  text-decoration-style: solid;
+}
+
+a.reference:hover,
+a.reference:focus,
+a.reference:active {
+  text-decoration-color: #666;
+}

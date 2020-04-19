@@ -1,0 +1,35 @@
+{% extends '_default.html' %}
+{% block style %}
+{% if style != '_default.css' %}
+{% include style %}
+{% endif %}
+{% include '_minisite.css' %}
+{% endblock %}
+{% block page %}
+<div class="col page flex">
+    <div class="col header">
+        <a href="/{{ common_prefix.joinpath('index.html') }}" class="flex">
+            {% block header %}{{ site_title or title }}{% endblock %}
+        </a>
+    </div>
+    <div class="row-when-medium menubar">
+        {{- menu_links() }}
+    </div>
+    <div class="col content">
+        <div class="textcolumn">
+            <h1>{{ title }}</h1>
+        </div>
+        <div class="col column-reverse row-when-large">
+            <div class="body textcolumn">
+                {%- block content %}{% include body %}{% endblock %}
+            </div>
+            <div class="sidebar">
+                {{- toc() }}
+            </div>
+        </div>
+    </div>
+    <div class="col footer cross-center">
+        {%- block footer %}{{ footer|markdown }}{% endblock %}
+    </div>
+</div>
+{% endblock %}

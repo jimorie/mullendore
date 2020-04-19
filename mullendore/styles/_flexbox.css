@@ -1,0 +1,413 @@
+html, body {
+    display: flex;
+    flex-direction: column;
+    align-content: flex-start;
+    height: 100%;
+}
+
+/* Stack child items vertically. */
+.col, .row-when-medium, .row-when-large
+{
+    display: flex;
+    flex-direction: column;
+    align-content: flex-start;
+}
+
+/* Stack child items horizontally. */
+.row, .col-when-medium, .col-when-large
+{
+    display: flex;
+    flex-direction: row;
+    align-content: flex-start;
+}
+
+.row.row-reverse,
+.col-when-medium.row-reverse,
+.col-when-large.row-reverse
+{
+    flex-direction: row-reverse;
+}
+
+.col.column-reverse,
+.row-when-medium.column-reverse,
+.row-when-large.column-reverse
+{
+    flex-direction: column-reverse;
+}
+
+/* Stretch item along parent's main-axis. */
+.flex, .flex-1
+{
+    flex: 1;
+}
+
+.flex-2
+{
+    flex: 2;
+}
+
+.flex-3
+{
+    flex: 3;
+}
+
+/* Stretch item along parent's cross-axis Overrides any cross-* class of parent. */
+.stretch-self
+{
+    align-self: stretch;
+    flex-grow: 1;
+}
+
+/* Center item along parent's cross-axis. Overrides any cross-* class of parent. */
+.center-self
+{
+    align-self: center;
+}
+
+/* Stack child items to the main-axis start. */
+.main-start
+{
+    justify-content: flex-start;
+}
+
+/* Stack child items to the cross-axis start. */
+.cross-start
+{
+    align-items: flex-start;
+    align-content: flex-start;
+}
+
+/* Stack child items to the main-axis center. */
+.main-center
+{
+    justify-content: center;
+}
+
+.main-between
+{
+    justify-content: space-between;
+}
+
+/* Stack child items to the cross-axis center. */
+.cross-center
+{
+    align-items: center;
+    align-content: center;
+}
+
+/* Stack child items to the main-axis end. */
+.main-end
+{
+    justify-content: flex-end;
+}
+
+/* Stack child items to the cross-axis end. */
+.cross-end
+{
+    align-items: flex-end;
+}
+
+/* Stretch child items along the cross-axis. */
+.cross-stretch
+{
+    align-items: stretch;
+    align-content: stretch;
+}
+
+/* Wrap items to next line on main-axis. */
+.wrap
+{
+    flex-wrap: wrap;
+}
+
+/* .margin-between adds margin after each child in the axis direction, except for the last child. */
+.margin-between.col > *,
+.margin-between.row-when-medium > *,
+.margin-between.row-when-large > *
+{
+    margin-bottom: 1em;
+    margin-right: 0px;
+}
+
+.big-margin-between.col > *,
+.big-margin-between.row-when-medium > *,
+.big-margin-between.row-when-large > *
+{
+    margin-bottom: 2em;
+    margin-right: 0px;
+}
+
+.margin-between.col > *:last-child,
+.margin-between.row-when-medium > *:last-child,
+.margin-between.row-when-large > *:last-child,
+.big-margin-between.col > *:last-child,
+.big-margin-between.row-when-medium > *:last-child,
+.big-margin-between.row-when-large > *:last-child
+{
+    margin-bottom: 0px;
+}
+
+.margin-between.row > *,
+.margin-between.col-when-medium > *,
+.margin-between.col-when-large > *
+{
+    margin-right: 1em;
+    margin-bottom: 0px;
+}
+
+.big-margin-between.row > *,
+.big-margin-between.col-when-medium > *,
+.big-margin-between.col-when-large > *
+{
+    margin-right: 2em;
+    margin-bottom: 0px;
+}
+
+.margin-between.row > *:last-child,
+.margin-between.col-when-medium > *:last-child,
+.margin-between.col-when-large > *:last-child,
+.big-margin-between.row > *:last-child,
+.big-margin-between.col-when-medium > *:last-child,
+.big-margin-between.col-when-large > *:last-child
+{
+    margin-right: 0px;
+}
+
+.padded
+{
+    padding: 1em;
+}
+
+.show-when-medium, .show-when-large
+{
+    display: none !important;
+}
+
+.force-show
+{
+    display: initial !important;
+}
+
+@media screen and (min-width: 376px)
+{
+    .show-when-medium,
+    {
+        display: initial !important;
+    }
+
+    .hide-when-medium
+    {
+        display: none !important;
+    }
+
+    .row-when-medium
+    {
+        flex-direction: row !important;
+    }
+
+    .col-when-medium
+    {
+        flex-direction: column !important;
+    }
+
+    .row.reverse-when-medium,
+    .row-when-medium.reverse-when-medium,
+    .col-when-large.reverse-when-medium
+    {
+        flex-direction: row-reverse !important;
+    }
+
+    .col.reverse-when-medium,
+    .col-when-medium.reverse-when-medium,
+    .row-when-large.reverse-when-medium
+    {
+        flex-direction: column-reverse !important;
+    }
+
+    .margin-between.row-when-medium > *
+    {
+        margin-right: 1em;
+        margin-bottom: 0px;
+    }
+
+    .big-margin-between.row-when-medium > *
+    {
+        margin-right: 2em;
+        margin-bottom: 0px;
+    }
+
+    .margin-between.row.reverse-when-medium > *,
+    .margin-between.row-when-medium.reverse-when-medium > *
+    {
+        margin-left: 1em;
+        margin-right: 0px;
+    }
+
+    .big-margin-between.row.reverse-when-medium > *,
+    .big-margin-between.row-when-medium.reverse-when-medium > *
+    {
+        margin-left: 2em;
+        margin-right: 0px;
+    }
+
+    .margin-between.row > *:last-child,
+    .margin-between.row-when-medium > *:last-child,
+    .big-margin-between.row > *:last-child,
+    .big-margin-between.row-when-medium > *:last-child
+    {
+        margin-left: 0px;
+        margin-right: 0px;
+    }
+
+    .margin-between.col-when-medium > *
+    {
+        margin-bottom: 1em;
+        margin-right: 0px;
+    }
+
+    .big-margin-between.col-when-medium > *
+    {
+        margin-bottom: 2em;
+        margin-right: 0px;
+    }
+
+    .margin-between.col.reverse-when-medium > *,
+    .margin-between.col-when-medium.reverse-when-medium > *
+    {
+        margin-top: 1em;
+        margin-bottom: 0px;
+    }
+
+    .big-margin-between.col.reverse-when-medium > *,
+    .big-margin-between.col-when-medium.reverse-when-medium > *
+    {
+        margin-top: 2em;
+        margin-bottom: 0px;
+    }
+
+    .margin-between.col > *:last-child,
+    .margin-between.col-when-medium > *:last-child,
+    .big-margin-between.col > *:last-child,
+    .big-margin-between.col-when-medium > *:last-child
+    {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    .padded-when-medium
+    {
+        padding: 1em;
+    }
+}
+
+@media screen and (min-width: 769px)
+{
+    .show-when-large,
+    .show-when-large.hide-when-medium
+    {
+        display: initial !important;
+    }
+
+    .hide-when-large,
+    .hide-when-large.show-when-medium
+    {
+        display: none !important;
+    }
+
+    .row-when-large
+    {
+        flex-direction: row !important;
+    }
+
+    .col-when-large
+    {
+        flex-direction: column !important;
+    }
+
+    .row.reverse-when-large,
+    .row-when-large.reverse-when-large
+    {
+        flex-direction: row-reverse !important;
+    }
+
+    .col.reverse-when-large,
+    .col-when-large.reverse-when-large
+    {
+        flex-direction: column-reverse !important;
+    }
+
+    .margin-between.row-when-large > *
+    {
+        margin-right: 1em;
+        margin-bottom: 0px;
+    }
+
+    .big-margin-between.row-when-large > *
+    {
+        margin-right: 2em;
+        margin-bottom: 0px;
+    }
+
+    .margin-between.row.reverse-when-large > *,
+    .margin-between.row-when-large.reverse-when-large > *
+    {
+        margin-left: 1em;
+        margin-right: 0px;
+    }
+
+    .big-margin-between.row.reverse-when-large > *,
+    .big-margin-between.row-when-large.reverse-when-large > *
+    {
+        margin-left: 2em;
+        margin-right: 0px;
+    }
+
+    .margin-between.row > *:last-child,
+    .margin-between.row-when-large > *:last-child,
+    .big-margin-between.row > *:last-child,
+    .big-margin-between.row-when-large > *:last-child
+    {
+        margin-right: 0px;
+        margin-left: 0px;
+    }
+
+    .margin-between.col-when-large > *
+    {
+        margin-bottom: 1em;
+        margin-right: 0px;
+    }
+
+    .big-margin-between.col-when-large > *
+    {
+        margin-bottom: 2em;
+        margin-right: 0px;
+    }
+
+    .margin-between.col.reverse-when-large > *,
+    .margin-between.col-when-large.reverse-when-large > *
+    {
+        margin-top: 1em;
+        margin-bottom: 0px;
+    }
+
+    .big-margin-between.col.reverse-when-large > *,
+    .big-margin-between.col-when-large.reverse-when-large > *
+    {
+        margin-top: 2em;
+        margin-bottom: 0px;
+    }
+
+    .margin-between.col > *:last-child,
+    .margin-between.col-when-large > *:last-child,
+    .big-margin-between.col > *:last-child,
+    .big-margin-between.col-when-large > *:last-child
+    {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    .padded-when-large
+    {
+        padding: 1em;
+    }
+}

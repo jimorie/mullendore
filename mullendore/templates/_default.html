@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="{{ encoding }}">
+<title>{% block title %}{{ site_title or title }}{% endblock %}</title>
+<style>
+{% block style %}{% include style %}{% endblock %}
+</style>
+</head>
+<body>
+{% block page %}{% include body %}{% endblock %}
+</body>
+</html>

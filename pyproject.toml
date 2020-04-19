@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "mullendore"
+version = "0.1.0"
+description = "A converter and templating tool for Markdown documents."
+authors = ["Petter Nyström"]
+
+[tool.poetry.scripts]
+mullendore = 'mullendore.cli:main'
+
+[tool.poetry.dependencies]
+python = "^3.8"
+click = "^7.1.1"
+jinja2 = "^2.11.1"
+markdown2 = "^2.3.8"
+
+[tool.poetry.dev-dependencies]
+black = "^19.10b0"
+flake8 = "^3.7.9"
+pytest = "^5.4.1"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
