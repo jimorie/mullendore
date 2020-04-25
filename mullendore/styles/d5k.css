@@ -15,19 +15,62 @@ p {
   text-align: justify;
 }
 
+blockquote {
+    font-style: italic;
+    padding: 0.5rem;
+    border-left: solid 2px #444;
+    margin: -0.5rem 0 -0.5rem 1.8rem;
+    background-color: #edeae1;
+    border-radius: 0.25rem;
+}
+
 p > ul,
-div > ul {
+p > ol,
+div > ul,
+div > ol {
   margin: 1.3rem 0;
+}
+
+li > p, blockquote > p {
+    margin: 0;
+    padding: 0;
 }
 
 li {
   text-align: justify;
 }
 
+ul, ol {
+  padding-left: 2.5rem;
+  position: relative;
+}
+
+.page .body ul {
+  list-style: none;
+}
+
+.page .body li {
+  margin: 0.5rem 0;
+}
+
+.page .body ul li:before
+{
+    content: '\2756';
+    position: absolute;
+    padding-left: 1.1rem;
+    left: 0;
+}
+
+.page .body ul li ul li:before
+{
+    content: '\27a2';
+}
+
 h1,
 h2,
 h3,
-h4 {
+h4,
+h5 {
   font-family: 'IM Fell Great Primer SC', serif;
   font-weight: inherit;
 }
@@ -47,29 +90,23 @@ h1 {
 
 h2 {
   margin: 2rem 0 1.3rem 0;
-  font-size: 2rem;
+  font-size: 2.5rem;
   border-bottom: solid 2px #444;
 }
 
 h3 {
   margin: 2rem 0 1rem 0;
-  font-size: 1.5rem;
+  font-size: 2.25rem;
 }
 
 h4 {
-  margin: 2rem 0 1rem 0;
-  font-size: 1rem;
+  margin: 1.3rem 0 1rem 0;
+  font-size: 1.75rem;
 }
 
-h5 {
-  margin: 2rem 0 1rem 0;
-  font-size: 1rem;
-  font-style: italic;
-}
-
-h6 {
-  margin: 2rem 0 1rem 0;
-  font-size: 1rem;
+h5, h6 {
+  margin: 1.3rem 0 1rem 0;
+  font-size: 1.25rem;
   color: rgba(0, 0, 0, 0.8);
 }
 
@@ -112,4 +149,28 @@ a.reference:hover,
 a.reference:focus,
 a.reference:active {
   text-decoration-color: #666;
+}
+
+table {
+    margin: 1.3rem 0 1.3rem 2.0rem;
+    padding: 0;
+    border-spacing: 0;
+    min-width: 50%;
+}
+
+table td, table th {
+    padding: 0.1rem 0.5rem;
+}
+
+table thead tr {
+    border: none;
+    padding: 0;
+    margin: 0;
+    background-color: black;
+    color: white;
+    text-align: left;
+}
+
+table tbody tr:nth-child(even) {
+    background-color: #edeae1;
 }
