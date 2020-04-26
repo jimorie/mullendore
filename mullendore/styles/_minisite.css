@@ -81,6 +81,10 @@
     font-size: 75%;
 }
 
+.nowrap {
+    white-space: nowrap;
+}
+
 @media print {
     .page .header,
     .page .menubar,

@@ -61,12 +61,16 @@ def plustables(text):
             cells.extend([""] * (width - len(cells)))
             if header:
                 html += "<tr>"
+                if "nowrap" in options and cells:
+                    html += f'<th class="nowrap">{cells.pop(0)}</th>'
                 html += "".join(f"<th>{cell}</th>" for cell in cells)
                 html += "</tr>\n</thead>\n<tbody>\n"
                 header = False
                 width = len(cells)
             else:
                 html += "<tr>"
+                if "nowrap" in options and cells:
+                    html += f'<td class="nowrap">{cells.pop(0)}</td>'
                 html += "".join(f"<td>{cell}</td>" for cell in cells)
                 html += "</tr>\n"
         html += "</tbody>\n</table>\n"
