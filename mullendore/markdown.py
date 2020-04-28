@@ -201,7 +201,7 @@ def markdown_to_html(
     toc = markdowner._toc
     if toc and skip_toc is False:
         ctx["store"]["toc_list"] = toc
-        ctx["store"]["toc"] = "</ol>".join(markdown2.calculate_toc_html(toc).replace("<ul>", "<ol>", 1).rsplit("</ul>", 1))
+        ctx["store"]["toc"] = _calculate_toc_html(toc, ol_levels={1, 2})
     return html
 
 
@@ -227,3 +227,44 @@ def _postprocess(ctx, text):
         else:
             text = func(text)
     return text
+
+def _calculate_toc_html(toc, ol_levels=None):
+    if toc is None:
+        return None
+
+    lines = []
+    start_level = min(level for level, _, _ in toc) - 1
+    prev_level = start_level
+    li_stack = []
+
+    def elem(level):
+        return "ol" if ol_levels and level in ol_levels else "ul"
+
+    def close(from_level, to_level):
+        # Close previous LI element
+        if li_stack:
+            lines.append("</li>")
+            li_stack.pop()
+        # Close UL elements to reach our level, if necessary
+        for lvl in range(from_level, to_level, -1):
+            lines.append(f"</{elem(lvl)}>")
+            # Close LI element if there was one opened a this level
+            if li_stack and lvl - 1 == li_stack[-1]:
+                lines.append("</li>")
+                li_stack.pop()
+
+    for level, anchor, name in toc:
+        if level > prev_level:
+            # Open new UL elements to reach our level, if necessary
+            for lvl in range(prev_level + 1, level + 1, 1):
+                lines.append(f"<{elem(lvl)}>")
+        else:
+            close(prev_level, level)
+        # Open new LI element with link at this level
+        lines.append(f'<li>\n<a href="#{anchor}">{name}</a>')
+        li_stack.append(level)
+        prev_level = level
+
+    close(prev_level, start_level)
+
+    return "\n" + "\n".join(lines)

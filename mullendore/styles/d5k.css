@@ -36,10 +36,6 @@ li > p, blockquote > p {
     padding: 0;
 }
 
-li {
-  text-align: justify;
-}
-
 ul, ol {
   padding-left: 2.5rem;
   position: relative;
