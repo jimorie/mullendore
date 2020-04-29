@@ -49,7 +49,7 @@ def plustables(text):
     def process_table(match):
         options = [opt.strip() for opt in match.group(1).split(",")]
         table = match.group(2)
-        html = f'<table class="{"small" if "small" in options else ""}">\n<thead>\n'
+        html = f'<div class="col scroll">\n<table class="{"small" if "small" in options else ""}">\n<thead>\n'
         header = True
         width = 0
         for line in table.split("\n"):
@@ -73,7 +73,7 @@ def plustables(text):
                     html += f'<td class="nowrap">{cells.pop(0)}</td>'
                 html += "".join(f"<td>{cell}</td>" for cell in cells)
                 html += "</tr>\n"
-        html += "</tbody>\n</table>\n"
+        html += "</tbody>\n</table>\n</div>\n"
         return html
     return _md_plustable_pattern.sub(process_table, text)
 

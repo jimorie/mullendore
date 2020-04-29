@@ -71,6 +71,10 @@
     margin: 0;
 }
 
+.scroll {
+  overflow-x: scroll;
+}
+
 .shadow {
   box-shadow: 0rem 0rem 0.25rem #444;
   border-radius: 0.25rem;
