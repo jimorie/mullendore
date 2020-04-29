@@ -11,17 +11,16 @@
 }
 
 .page .header a {
-    font-size: 400%;
+    font-size: 300%;
     text-shadow: 0px 3px 3px #111;
     color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
-    padding: 2rem 0;
+    padding: 0;
     line-height: 1.0;
 }
 
 .page .menubar {
     padding: 0rem 5vw;
-    margin-left: -1rem;
     background-color: #111;
     border-top: solid 1px #333;
 }
@@ -84,6 +83,14 @@
 .nowrap {
     white-space: nowrap;
 }
+
+@media screen and (min-width: 768px) {
+  .page .header a {
+      font-size: 400%;
+      padding: 2rem 0;
+  }
+}
+
 
 @media print {
     .page .header,
