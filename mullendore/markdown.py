@@ -49,7 +49,7 @@ def plustables(text):
     def process_table(match):
         options = [opt.strip() for opt in match.group(1).split(",")]
         table = match.group(2)
-        html = f'<div class="col scroll">\n<table class="{"small" if "small" in options else ""}">\n<thead>\n'
+        html = f'<div class="scroll-x">\n<table class="{"small" if "small" in options else ""}">\n<thead>\n'
         header = True
         width = 0
         for line in table.split("\n"):
@@ -58,6 +58,7 @@ def plustables(text):
                 header = True
                 continue
             cells = _md_plustable_cell_pattern.split(line)
+            cells = [simple_markdown_to_html(cell) for cell in cells]
             cells.extend([""] * (width - len(cells)))
             if header:
                 html += "<tr>"
@@ -173,7 +174,8 @@ def header_sections(text):
 
 class Markdown(markdown2.Markdown):
     def __init__(self, *args, **kwargs):
-        kwargs["extras"] = ["toc", "metadata", "smarty-pants"]
+        if "extras" not in kwargs:
+            kwargs["extras"] = ["toc", "metadata", "smarty-pants"]
         markdown2.Markdown.__init__(self, *args, **kwargs)
         self.ctx = None
 
@@ -202,6 +204,21 @@ def markdown_to_html(
     if toc and skip_toc is False:
         ctx["store"]["toc_list"] = toc
         ctx["store"]["toc"] = _calculate_toc_html(toc, ol_levels={1, 2})
+    return html
+
+
+simple_markdowner = Markdown(extras=["smarty-pants"])
+
+
+def simple_markdown_to_html(text: str, ctx: Optional[Markdown] = None) -> str:
+    if not text.strip():
+        return text
+    html = simple_markdowner.convert(text)
+    html = html.strip()
+    if html.startswith("<p>"):
+        html = html[len("<p>"):]
+    if html.endswith("</p>"):
+        html = html[:-len("</p>")]
     return html
 
 
