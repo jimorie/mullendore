@@ -1,0 +1,61 @@
+.change {
+    display: inline-block;
+    position: relative;
+    padding: 0 0.5em;
+}
+
+.change-icon {
+    height: 1em;
+    width: 1em;
+    background-color: rgba(224, 128, 64);
+    text-align: center;
+    border-radius: 0.5em;
+    cursor: default;
+    line-height: 0.9;
+}
+
+.change-icon span {
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 0.8em;
+    color: white;
+}
+
+.change-list {
+    font-family: Menlo, monospace;
+    font-size: 0.75rem;
+    display: none;
+    position: absolute;
+    z-index: 10;
+    background-color: black;
+    color: white;
+    border-radius: 10px;
+    width: 300px;
+    padding: 5px 0;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -150px;
+}
+
+.change-item {
+    padding: 5px 10px;
+}
+
+.change-author, .change-date {
+    color: #ccc;
+}
+
+.change-list::after {
+  content: " ";
+  position: absolute;
+  top: 100%; /* At the bottom of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+.change:hover .change-list {
+    display: block;
+}

@@ -15,9 +15,7 @@ class Loader(jinja2.BaseLoader):
     with the `.md` suffix.
     """
 
-    def __init__(
-        self, encoding: str = "utf-8", followlinks: bool = False,
-    ):
+    def __init__(self, encoding: str = "utf-8", followlinks: bool = False):
         self.encoding = encoding
         self.followlinks = followlinks
         self.root_file = None

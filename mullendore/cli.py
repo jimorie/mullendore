@@ -26,9 +26,7 @@ from mullendore.paths import path, abspath
     is_flag=True,
     help="Convert Markdown to HTML directly without any template.",
 )
-@click.option(
-    "--env", is_flag=True, help="Use environment variables in templates.",
-)
+@click.option("--env", is_flag=True, help="Use environment variables in templates.")
 @click.option(
     "-o",
     "--output",
@@ -68,7 +66,7 @@ from mullendore.paths import path, abspath
     ),
 )
 @click.option(
-    "--encoding", type=str, default="utf-8", help="Encoding used in the files.",
+    "--encoding", type=str, default="utf-8", help="Encoding used in the files."
 )
 def main(files: List[str], **options):
     """
@@ -104,11 +102,12 @@ def main(files: List[str], **options):
         all_metadata[file_path] = metadata
         if file_path.name == "index.md":
             site_metadata = metadata
-    for metadata in all_metadata.values():
-        if metadata != site_metadata:
-            for k, v in site_metadata.items():
-                metadata.setdefault(k, v)
-        metadata["site_title"] = site_metadata.get("title")
+    if site_metadata:
+        for metadata in all_metadata.values():
+            if metadata != site_metadata:
+                for k, v in site_metadata.items():
+                    metadata.setdefault(k, v)
+            metadata["site_title"] = site_metadata.get("title")
     common_prefix = pathlib.Path(os.path.commonprefix(paths)).relative_to(root_dir)
     for file_path in paths:
         metadata = all_metadata[file_path]

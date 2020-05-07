@@ -91,9 +91,7 @@ class Converter:
 
     def _build_references(self, path: pathlib.Path, root_dir: pathlib.Path):
         store = dict()
-        markdown_to_html(
-            path.read_text(encoding=self.encoding), dict(store=store),
-        )
+        markdown_to_html(path.read_text(encoding=self.encoding), dict(store=store))
         references = []
         for lvl, slug, text in store["toc_list"]:
             if lvl != 2:

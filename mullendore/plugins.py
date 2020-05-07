@@ -87,9 +87,7 @@ def toc(ctx: Mapping) -> jinja2.Markup:
 
 
 @template_function
-def glob(
-    ctx: Mapping, pattern: str = "*", exclude: Optional[list] = None,
-):
+def glob(ctx: Mapping, pattern: str = "*", exclude: Optional[list] = None):
     path = pathlib.Path(pattern)
     if not path.is_absolute():
         path = here(ctx).joinpath(path)

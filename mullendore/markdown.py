@@ -1,7 +1,12 @@
+import html
 import markdown2
+import pathlib
 import re
 
 from typing import Callable, Optional, Mapping
+
+from mullendore.git import GitRepo
+
 
 preprocessors = []
 postprocessors = []
@@ -31,7 +36,72 @@ def pass_context(func: Callable) -> Callable:
     return func
 
 
-_md_plustable_pattern = re.compile(r"^\+\+\+(.*?)\n(.*?)\n\+\+\+\n", re.DOTALL|re.MULTILINE)
+@markdown_preprocessor
+@pass_context
+def show_changes_since(ctx, text):
+    """
+    Show changes from the git blame data for each header. This preprocessor
+    must run first, since it relies on the line numbers from the checked in
+    file.
+    """
+    changes_since = ctx.get("show-changes-since")
+    changes_repo = ctx.get("show-changes-repo")
+    if not changes_since:
+        return text
+    file_path = pathlib.Path(ctx.get("body")).resolve()
+    repo = GitRepo(file_path.parent)
+    commits = repo.blame_file(file_path, changes_since=changes_since)
+    lines = enumerate(text.splitlines(), 1)
+    next(lines)  # Ignore first --- line
+    for _, line in lines:
+        if line.startswith("---"):
+            break
+    changes = {}
+    out = []
+    header = None
+    body = []
+    for line_num, line in lines:
+        if line.startswith("#"):
+            if header:
+                if changes:
+                    change_list = "".join(
+                        (
+                            '<div class="change-item"><span class="change-author">'
+                            f'{html.escape(commit["author"])}'
+                            "</span> "
+                            f'<span class="change-date">{commit["date"]}:</span>'
+                            "<br/>"
+                            '<span class="change-summary">'
+                            f'<a href="{changes_repo.format(commit=commit["hash"])}">'
+                            f'{html.escape(commit["summary"])}'
+                            "</a></span></div>"
+                        )
+                        for commit in changes.values()
+                    )
+                    header += (
+                        f'<div class="tooltip change">'
+                        f'<div class="change-icon"><span>{len(changes)}</span></div>'
+                        f'<div class="change-list">{change_list}</div>'
+                        f"</div>"
+                    )
+                out.append(header)
+            out.extend(body)
+            header = line
+            body = []
+            changes = {}
+        else:
+            body.append(line)
+        if line:
+            commit = commits.get(line_num)
+            if commit:
+                changes[commit["hash"]] = commit
+    out = "\n".join(out)
+    return out
+
+
+_md_plustable_pattern = re.compile(
+    r"^\+\+\+(.*?)\n(.*?)\n\+\+\+\n", re.DOTALL | re.MULTILINE
+)
 _md_plustable_cell_pattern = re.compile("  +")
 
 
@@ -46,10 +116,14 @@ def plustables(text):
         R2C1        R2C2
         +++
     """
+
     def process_table(match):
         options = [opt.strip() for opt in match.group(1).split(",")]
         table = match.group(2)
-        html = f'<div class="scroll-x">\n<table class="{"small" if "small" in options else ""}">\n<thead>\n'
+        html = (
+            f'<div class="scroll-x">\n'
+            f'<table class="{"small" if "small" in options else ""}">\n<thead>\n'
+        )
         header = True
         width = 0
         for line in table.split("\n"):
@@ -76,6 +150,7 @@ def plustables(text):
                 html += "</tr>\n"
         html += "</tbody>\n</table>\n</div>\n"
         return html
+
     return _md_plustable_pattern.sub(process_table, text)
 
 
@@ -126,10 +201,10 @@ def _body_parts(text):
     yield tmp, tags
 
 
-_html_img_pattern = re.compile(r'<img .*?/>')
+_html_img_pattern = re.compile(r"<img .*?/>")
 _html_img_src_pattern = re.compile('src="(.*?)"')
 _html_img_alt_pattern = re.compile('alt="(.*?)"')
-_html_img_hashtag_pattern = re.compile('#\\w+')
+_html_img_hashtag_pattern = re.compile("#\\w+")
 
 
 @markdown_postprocessor
@@ -143,7 +218,12 @@ def link_html_images(text):
             classes.append(hashtag.strip("#"))
         if not src.endswith(".png"):
             classes.append("shadow")
-        return f'<a href="{src}"><img class="{" ".join(classes)}" src="{src}" alt="{alt}" /></a>'
+        return (
+            f'<a href="{src}">'
+            f'<img class="{" ".join(classes)}" src="{src}" alt="{alt}" />'
+            "</a>"
+        )
+
     return _html_img_pattern.sub(repl, text)
 
 
@@ -162,13 +242,13 @@ def header_sections(text):
             continue
         out += text[last_pos:pos]
         if last_lvl:
-            out += '</div>\n'
+            out += "</div>\n"
         out += '<div class="no-break-section">\n'
         last_pos = pos
         last_lvl = lvl
     out += text[last_pos:]
     if last_lvl:
-        out += '</div>\n'
+        out += "</div>\n"
     return out
 
 
@@ -183,6 +263,11 @@ class Markdown(markdown2.Markdown):
         if text.startswith("---"):
             return markdown2.Markdown._extract_metadata(self, text)
         return text
+
+    def header_id_from_text(self, text, prefix, n):
+        if "<" in text:
+            text, _ = text.split("<", 1)
+        return markdown2.Markdown.header_id_from_text(self, text, prefix, n)
 
 
 markdowner = Markdown()
@@ -216,9 +301,9 @@ def simple_markdown_to_html(text: str, ctx: Optional[Markdown] = None) -> str:
     html = simple_markdowner.convert(text)
     html = html.strip()
     if html.startswith("<p>"):
-        html = html[len("<p>"):]
+        html = html[len("<p>") :]
     if html.endswith("</p>"):
-        html = html[:-len("</p>")]
+        html = html[: -len("</p>")]
     return html
 
 
@@ -244,6 +329,7 @@ def _postprocess(ctx, text):
         else:
             text = func(text)
     return text
+
 
 def _calculate_toc_html(toc, ol_levels=None):
     if toc is None:
@@ -278,7 +364,13 @@ def _calculate_toc_html(toc, ol_levels=None):
         else:
             close(prev_level, level)
         # Open new LI element with link at this level
-        lines.append(f'<li>\n<a href="#{anchor}">{name}</a>')
+        if "<" in name:
+            i = name.find("<")
+            tag = name[i:]
+            name = name[:i]
+        else:
+            tag = ""
+        lines.append(f'<li>\n<a href="#{anchor}">{name}</a>{tag}')
         li_stack.append(level)
         prev_level = level
 
