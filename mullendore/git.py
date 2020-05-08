@@ -9,12 +9,24 @@ Blame = Mapping[int, Commit]
 
 
 class GitRepo:
-    def __init__(self, repo_path: pathlib.Path, cmd_path: pathlib.Path = "git"):
+    def __init__(
+        self,
+        repo_path: pathlib.Path,
+        git_path: pathlib.Path = None,
+        cmd_path: pathlib.Path = "git",
+    ):
         self.repo_path = repo_path.resolve()
+        self.git_path = git_path or self.repo_path.joinpath(".git")
         self.cmd_path = cmd_path
 
     def git(self, *args, return_code=False) -> Union[str, bool]:
-        args = [self.cmd_path] + list(args)
+        args = [
+            self.cmd_path,
+            "--work-tree",
+            str(self.repo_path),
+            "--git-dir",
+            str(self.git_path),
+        ] + list(args)
         process = subprocess.run(args, capture_output=True, cwd=self.repo_path)
         if return_code:
             return process.returncode == 0
