@@ -1,6 +1,10 @@
 {% include '_flexbox.css' %}
 {% include '_changes.css' %}
 
+html, body, .page {
+    height: 100%;
+}
+
 .page .header {
     background-image: url('/{{ common_prefix.joinpath(banner) }}');
     background-size: 100% auto;
@@ -66,10 +70,6 @@
     padding: 1rem 5vw;
     background-color: #111;
     color: white;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
 }
 
 .page .footer * {
