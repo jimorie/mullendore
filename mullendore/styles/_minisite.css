@@ -6,13 +6,165 @@ html, body {
     display: flex;
     flex-direction: column;
     align-content: flex-start;
+    color: {{ css_color or '#444' }};
+    background-color: {{ css_background_color or '#fdfaf1' }};
+    margin: 0;
+    max-width: 100%;
+    font-family: Georgia, serif;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+p {
+  margin: 1.3rem 0;
+  text-align: justify;
+}
+
+blockquote {
+    font-style: italic;
+    padding: 0.5rem;
+    border-left: solid 2px {{ css_color or '#444' }};
+    margin: -0.5rem 0 1.3rem 1.8rem;
+    background-color: {{ css_background_color_darker or '#edeae1' }};
+    border-radius: 0.25rem;
+}
+
+h1 {
+  margin: 2rem 0 1.3rem 0;
+  font-size: 3rem;
+  text-align: center;
+}
+
+h2 {
+  margin: 2rem 0 1.3rem 0;
+  font-size: 2.5rem;
+  border-bottom: solid 2px {{ css_color or '#444' }};
+}
+
+h3 {
+  margin: 2rem 0 1rem 0;
+  font-size: 2.25rem;
+}
+
+h4 {
+  margin: 1.3rem 0 1rem 0;
+  font-size: 1.75rem;
+}
+
+h5, h6 {
+  margin: 1.3rem 0 1rem 0;
+  font-size: 1.25rem;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+small {
+  font-size: .75em;
+}
+
+pre,
+code {
+  font-family: Menlo, Monaco, "Courier New", monospace;
+}
+
+pre {
+  background-color: {{ css_background_color_darker or '#edeae1' }};
+  font-size: .8rem;
+  overflow-x: scroll;
+  padding: 1rem;
+}
+
+a,
+a:visited {
+  color: {{ css_link_color or '#3498db' }};
+}
+
+a:hover,
+a:focus,
+a:active {
+  color: {{ css_link_color_hover or '#2980b9' }};
+}
+
+a.reference,
+a.reference:visited {
+  color: {{ css_color or '#444' }};
+  text-decoration: underline;
+  text-decoration-color: {{ css_color_lighter or '#dddad1' }};
+  text-decoration-style: solid;
+}
+
+a.reference:hover,
+a.reference:focus,
+a.reference:active {
+  text-decoration-color: {{ css_color or '#444' }};
+}
+
+table {
+    margin: 1.3rem 0 1.3rem 2.0rem;
+    padding: 0;
+    border-spacing: 0;
+    min-width: 50%;
+}
+
+table td, table th {
+    padding: 0.1rem 0.5rem;
+}
+
+table thead tr {
+    border: none;
+    padding: 0;
+    margin: 0;
+    background-color: black;
+    color: white;
+    text-align: left;
+}
+
+table tbody tr:nth-child(even) {
+    background-color: {{ css_background_color_darker or '#edeae1' }};
+}
+
+p > ul,
+p > ol,
+div > ul,
+div > ol {
+  margin: 1.3rem 0;
+}
+
+li > p, blockquote > p {
+    margin: 0;
+    padding: 0;
+}
+
+ul, ol {
+  padding-left: 2.5rem;
+  position: relative;
+}
+
+.page .body ul {
+  list-style: none;
+}
+
+.page .body li {
+  margin: 0.5rem 0;
+}
+
+.page .body ul li:before
+{
+    content: '\2756';
+    position: absolute;
+    padding-left: 1.1rem;
+    left: 0;
+}
+
+.page .body ul li ul li:before
+{
+    content: '\27a2';
 }
 
 .page .header {
     background-image: url('/{{ common_prefix.joinpath(banner) }}');
     background-size: 100% auto;
     background-repeat: no-repeat;
-    background-color: #111;
+    background-color: {{ css_color_darker or '#111' }};
     height: 25vw;
     padding: 2rem 5vw;
     justify-content: start;
@@ -20,7 +172,7 @@ html, body {
 
 .page .header a {
     font-size: 300%;
-    text-shadow: 0px 3px 3px #111;
+    text-shadow: 0px 3px 3px {{ css_color_darker or '#111' }};
     color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
     padding: 0;
@@ -29,8 +181,8 @@ html, body {
 
 .page .menubar {
     padding: 0rem 5vw;
-    background-color: #111;
-    border-top: solid 1px #333;
+    background-color: {{ css_color_darker or '#111' }};
+    border-top: solid 1px {{ css_color or '#444' }};
 }
 
 .page .menubar a {
@@ -44,7 +196,7 @@ html, body {
 }
 
 .page .menubar a:hover {
-  background-color: #333;
+  background-color: {{ css_color or '#444' }};
 }
 
 .page .content {
@@ -71,7 +223,7 @@ html, body {
 
 .page .footer {
     padding: 1rem 5vw;
-    background-color: #111;
+    background-color: {{ css_color_darker or '#111' }};
     color: white;
 }
 
@@ -85,7 +237,7 @@ html, body {
 }
 
 .shadow {
-  box-shadow: 0rem 0rem 0.25rem #444;
+  box-shadow: 0rem 0rem 0.25rem {{ css_color or '#444' }};
   border-radius: 0.25rem;
 }
 
