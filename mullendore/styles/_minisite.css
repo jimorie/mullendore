@@ -1,8 +1,11 @@
 {% include '_flexbox.css' %}
 {% include '_changes.css' %}
 
-html, body, .page {
+html, body {
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-content: flex-start;
 }
 
 .page .header {
