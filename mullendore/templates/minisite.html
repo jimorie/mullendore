@@ -8,7 +8,7 @@
 {% block page %}
 <div class="col page flex">
     <div class="col header">
-        <a href="/{{ common_prefix.joinpath('index.html') }}" class="flex">
+        <a class="col flex" href="/{{ common_prefix.joinpath('index.html') }}">
             {% block header %}{{ site_title or title }}{% endblock %}
         </a>
     </div>
