@@ -93,11 +93,23 @@ class Converter:
         store = dict()
         markdown_to_html(path.read_text(encoding=self.encoding), dict(store=store))
         references = []
-        for lvl, slug, text in store["toc_list"]:
-            if lvl != 2:
+        for level, anchor, name in store["toc_list"]:
+            if level != 2:
                 continue
-            pat = re.compile(f"\\b({text}s?)\\b", re.IGNORECASE)
-            references.append(
-                (pat, f"/{path.relative_to(root_dir).with_suffix('.html')}#{slug}")
-            )
+            if "/" in name:
+                aliases = name.split("/")
+            else:
+                aliases = [name]
+            for alias in aliases:
+                alias = alias.strip()
+                if not alias:
+                    continue
+                pat = re.compile(f"\\b({alias}s?)\\b", re.IGNORECASE)
+                references.append(
+                    (
+                        pat,
+                        f"/{path.relative_to(root_dir).with_suffix('.html')}#{anchor}",
+                    )
+                )
+        references.sort(key=lambda ref: len(ref[0].pattern), reverse=True)
         return references

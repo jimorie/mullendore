@@ -265,9 +265,21 @@ class Markdown(markdown2.Markdown):
         return text
 
     def header_id_from_text(self, text, prefix, n):
+        if "/" in text:
+            text, _ = text.split("/", 1)
         if "<" in text:
             text, _ = text.split("<", 1)
         return markdown2.Markdown.header_id_from_text(self, text, prefix, n)
+
+    def _h_sub(self, match):
+        html = markdown2.Markdown._h_sub(self, match)
+        # Hide reference aliases
+        start = html.find(">")
+        end = html.find("<", start)
+        slash = html.find("/", start, end)
+        if slash >= 0:
+            html = html[:slash] + html[end:]
+        return html
 
 
 markdowner = Markdown()
@@ -363,13 +375,16 @@ def _calculate_toc_html(toc, ol_levels=None):
                 lines.append(f"<{elem(lvl)}>")
         else:
             close(prev_level, level)
-        # Open new LI element with link at this level
+        # Handle tags and metadata in headers
         if "<" in name:
             i = name.find("<")
             tag = name[i:]
             name = name[:i]
         else:
             tag = ""
+        if "/" in name:
+            name, _ = name.split("/", 1)
+        # Open new LI element with link at this level
         lines.append(f'<li>\n<a href="#{anchor}">{name}</a>{tag}')
         li_stack.append(level)
         prev_level = level
