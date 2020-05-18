@@ -103,10 +103,17 @@ def main(files: List[str], **options):
         if file_path.name == "index.md":
             site_metadata = metadata
     if site_metadata:
+        if "private" in site_metadata:
+            private = {k.strip() for k in site_metadata.pop("private").split(",")}
+        else:
+            private = None
         for metadata in all_metadata.values():
-            if metadata != site_metadata:
-                for k, v in site_metadata.items():
-                    metadata.setdefault(k, v)
+            if metadata is site_metadata:
+                continue
+            for k, v in site_metadata.items():
+                if private and k in private:
+                    continue
+                metadata.setdefault(k, v)
             metadata["site_title"] = site_metadata.get("title")
     common_prefix = pathlib.Path(os.path.commonprefix(paths)).relative_to(root_dir)
     for file_path in paths:
