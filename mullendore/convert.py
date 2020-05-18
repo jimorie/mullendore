@@ -109,6 +109,8 @@ class Converter:
                     (
                         pat,
                         f"/{path.relative_to(root_dir).with_suffix('.html')}#{anchor}",
+                        path,
+                        anchor,
                     )
                 )
         references.sort(key=lambda ref: len(ref[0].pattern), reverse=True)

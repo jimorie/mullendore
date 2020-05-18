@@ -164,41 +164,64 @@ def swedish_quotes(text):
 def link_references(ctx, text):
     if ctx.get("no-refs"):
         return text
+    file_path = ctx.get("body")
+    if not file_path:
+        return text
+    file_path = pathlib.Path(file_path).resolve()
     references = ctx.get("references")
     if not references:
         return text
-    dont_touch = {"a", "h1", "h2", "h3", "h4", "h5", "h6"}
-    for pattern, url in references:
+    dont_touch = {"a", "span", "h1", "h2", "h3", "h4", "h5", "h6"}
+    for pattern, url, path, anchor in references:
         tmp = ""
-        for part, tags in _body_parts(text):
+        for part, tags, headers in _body_parts(text):
             if tags is None or dont_touch.intersection(tags):
                 tmp += part
+            elif path == file_path and anchor in (a for _, a in headers):
+                tmp += pattern.sub(f'<span class="self-reference">\\1</span>', part)
             else:
                 tmp += pattern.sub(f'<a class="reference" href="{url}">\\1</a>', part)
         text = tmp
     return text
 
 
+_html_id_pattern = re.compile(' id="(.*?)"')
+
+
 def _body_parts(text):
     tags = []
+    headers = []
     tmp = text
     while tmp:
         i = tmp.find("<")
         if i < 0:
             break
-        yield tmp[:i], tags
+        yield tmp[:i], tags, headers
         tmp = tmp[i:]
         if tmp.startswith("</"):
             tags.pop()
         else:
             i = min(tmp.find(" "), tmp.find(">"))
-            tags.append(tmp[1:i])
+            tag = tmp[1:i]
+            tags.append(tag)
+            # Keep track of headers
+            if tag.startswith("h"):
+                try:
+                    level = int(tag[1])
+                    header_id = _html_id_pattern.search(tmp).group(1)
+                    while headers:
+                        if headers[-1][0] < level:
+                            break
+                        headers.pop()
+                    headers.append((level, header_id))
+                except (ValueError, AttributeError):
+                    pass
         i = tmp.find(">")
         if tmp[i - 1] == "/":
             tags.pop()
-        yield tmp[: i + 1], None
+        yield tmp[: i + 1], None, headers
         tmp = tmp[i + 1 :]
-    yield tmp, tags
+    yield tmp, tags, headers
 
 
 _html_img_pattern = re.compile(r"<img .*?/>")
