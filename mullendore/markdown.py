@@ -239,7 +239,7 @@ def link_html_images(text):
         for hashtag in _html_img_hashtag_pattern.findall(alt):
             alt = alt.replace(hashtag, "")
             classes.append(hashtag.strip("#"))
-        if not src.endswith(".png"):
+        if not src.endswith(".png") and "noshadow" not in classes:
             classes.append("shadow")
         return (
             f'<a href="{src}">'
