@@ -90,6 +90,12 @@ def main(files: List[str], **options):
                     err=True,
                 )
                 continue
+        elif "**" in input_file.parts:
+            i = input_file.parts.index("**")
+            for path in pathlib.Path(*input_file.parts[:i]).glob(
+                "/".join(input_file.parts[i:])
+            ):
+                paths.append()
         else:
             click.echo(f"{input_path.relative_to(root_dir)}: no such file", err=True)
             continue
