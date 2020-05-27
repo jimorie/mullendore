@@ -128,3 +128,33 @@ def list_files(ctx: Mapping, path: Union[pathlib.Path, str]) -> str:
         out += f'<li><a href="{href(ctx, filepath)}">{filepath.name}</a></li>\n'
     out += "</ul>\n"
     return out
+
+
+@template_function
+def include_section(
+    ctx: Mapping,
+    path: Union[pathlib.Path, str],
+    header: str,
+    include_blockquotes: bool = False,
+) -> str:
+    if type(path) is str:
+        path = pathlib.Path(path)
+    out = []
+    level = 0
+    for line in path.read_text().splitlines():
+        if include_blockquotes is False and line.startswith(">"):
+            continue
+        if line.startswith("#"):
+            line_level = line.count("#")
+            if not level:
+                line_header = line[line_level:].strip()
+                if line_header == header:
+                    level = line_level
+                    out.append(line)
+            elif line_level <= level:
+                break
+            else:
+                out.append(line)
+        elif level:
+            out.append(line)
+    return "\n".join(out)
