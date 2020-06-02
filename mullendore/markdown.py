@@ -408,7 +408,7 @@ def _calculate_toc_html(toc, ol_levels=None):
         if "/" in name:
             name, _ = name.split("/", 1)
         # Open new LI element with link at this level
-        lines.append(f'<li>\n<a href="#{anchor}">{name}</a>{tag}')
+        lines.append(f'<li>\n<a href="#{anchor}">{name.strip()}</a>{tag}')
         li_stack.append(level)
         prev_level = level
 
