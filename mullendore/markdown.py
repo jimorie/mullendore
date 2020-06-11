@@ -60,41 +60,44 @@ def show_changes_since(ctx, text):
     out = []
     header = None
     body = []
+    def add_section(header, body, changes, out):
+        if header:
+            if changes:
+                change_list = "".join(
+                    (
+                        '<div class="change-item"><span class="change-author">'
+                        f'{html.escape(commit["author"])}'
+                        "</span> "
+                        f'<span class="change-date">{commit["date"]}:</span>'
+                        "<br/>"
+                        '<span class="change-summary">'
+                        f'<a href="{changes_repo.format(commit=commit["hash"])}">'
+                        f'{html.escape(commit["summary"])}'
+                        "</a></span></div>"
+                    )
+                    for commit in changes.values()
+                )
+                header += (
+                    f'<div class="tooltip change">'
+                    f'<div class="change-icon"><span>{len(changes)}</span></div>'
+                    f'<div class="change-list">{change_list}</div>'
+                    f"</div>"
+                )
+            out.append(header)
+        out.extend(body)
+        body.clear()
+        changes.clear()
     for line_num, line in lines:
         if line.startswith("#"):
-            if header:
-                if changes:
-                    change_list = "".join(
-                        (
-                            '<div class="change-item"><span class="change-author">'
-                            f'{html.escape(commit["author"])}'
-                            "</span> "
-                            f'<span class="change-date">{commit["date"]}:</span>'
-                            "<br/>"
-                            '<span class="change-summary">'
-                            f'<a href="{changes_repo.format(commit=commit["hash"])}">'
-                            f'{html.escape(commit["summary"])}'
-                            "</a></span></div>"
-                        )
-                        for commit in changes.values()
-                    )
-                    header += (
-                        f'<div class="tooltip change">'
-                        f'<div class="change-icon"><span>{len(changes)}</span></div>'
-                        f'<div class="change-list">{change_list}</div>'
-                        f"</div>"
-                    )
-                out.append(header)
-            out.extend(body)
+            add_section(header, body, changes, out)
             header = line
-            body = []
-            changes = {}
         else:
             body.append(line)
         if line:
             commit = commits.get(line_num)
             if commit:
                 changes[commit["hash"]] = commit
+    add_section(header, body, changes, out)
     out = "\n".join(out)
     return out
 
