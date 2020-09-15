@@ -2,15 +2,8 @@
 {% include '_changes.css' %}
 
 html, body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-content: flex-start;
     color: {{ foreground_color or '#444' }};
     background-color: {{ background_color or '#fdfaf1' }};
-    margin: 0;
-    max-width: 100%;
-    font-family: Georgia, serif;
     font-size: 1rem;
     line-height: 1.5;
 }
@@ -51,9 +44,17 @@ h4 {
   font-size: 1.75rem;
 }
 
-h5, h6 {
+h5 {
+  margin: 1.3rem 0 1rem 0;
+  font-size: 1.5rem;
+  opacity: 0.8;
+}
+
+h6 {
   margin: 1.3rem 0 1rem 0;
   font-size: 1.25rem;
+  font-style: italic;
+  opacity: 0.8;
 }
 
 small {
