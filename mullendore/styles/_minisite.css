@@ -107,6 +107,7 @@ table {
 
 table td, table th {
     padding: 0.1rem 0.5rem;
+    vertical-align: top;
 }
 
 table thead tr {
@@ -161,9 +162,11 @@ ul, ol {
 }
 
 .page .header {
-    background-image: url('/{{ common_prefix.joinpath(banner) }}');
+    {%- if banner %}
+    background-image: url('{{ banner|href }}');
     background-size: 100% auto;
     background-repeat: no-repeat;
+    {%- endif %}
     background-color: {{ banner_background_color or '#111' }};
     height: 25vw;
     padding: 2rem 5vw;

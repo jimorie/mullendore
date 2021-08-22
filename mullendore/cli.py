@@ -1,21 +1,23 @@
 import click
-import jinja2
 import os
 import pathlib
 
-from typing import List
-
 from mullendore.convert import Converter
-from mullendore.markdown import get_markdown_metadata
-from mullendore.paths import path, abspath
+
+# from mullendore.markdown import get_markdown_metadata
+from mullendore.types import Metadata, abspath
+
+from typing import List, Mapping
+
+AllMetadata = Mapping[pathlib.Path, Metadata]
 
 
 @click.command()
-@click.argument("files", nargs=-1, type=abspath)
+@click.argument("args", nargs=-1, type=abspath)
 @click.option(
     "-t",
     "--template",
-    type=path,
+    type=pathlib.Path,
     help=(
         "Path to the template to use. The template can use the `body` variable to "
         "include the given input path. If unspecified, a default template is used."
@@ -39,7 +41,7 @@ from mullendore.paths import path, abspath
 @click.option(
     "-s",
     "--style",
-    type=path,
+    type=pathlib.Path,
     help=(
         "Path to the CSS stylesheet to use. If you use a custom template, this "
         "becomes the `style` variable."
@@ -68,20 +70,31 @@ from mullendore.paths import path, abspath
 @click.option(
     "--encoding", type=str, default="utf-8", help="Encoding used in the files."
 )
-def main(files: List[str], **options):
+def main(args: List[str], **options):
     """
     Convert Markdown files to HTML using Jinja templates.
     """
-    converter = Converter(options)
-    if not files:
+    if not args:
         raise click.UsageError("No input files given.")
     root_dir = options["root"]
+    converter = Converter(options)
+    paths = resolve_paths(args, root_dir, options["recursive"])
+    common_prefix = pathlib.Path(os.path.commonprefix(paths)).relative_to(root_dir)
+    converter.convert_all(
+        paths, root_dir=root_dir, common_prefix=common_prefix, store=dict()
+    )
+
+
+def resolve_paths(
+    args: List[str], root_dir: pathlib.Path, recursive: bool
+) -> List[pathlib.Path]:
     paths = []
-    for input_path in files:
+    for arg in args:
+        input_path = pathlib.Path(arg)
         if input_path.is_file():
             paths.append(input_path)
         elif input_path.is_dir():
-            if options["recursive"]:
+            if recursive:
                 paths.extend(input_path.rglob("*.md"))
             else:
                 click.echo(
@@ -90,58 +103,15 @@ def main(files: List[str], **options):
                     err=True,
                 )
                 continue
-        elif "**" in input_file.parts:
-            i = input_file.parts.index("**")
-            for path in pathlib.Path(*input_file.parts[:i]).glob(
-                "/".join(input_file.parts[i:])
+        elif "**" in input_path.parts:
+            i = input_path.parts.index("**")
+            for path in pathlib.Path(*input_path.parts[:i]).glob(
+                "/".join(input_path.parts[i:])
             ):
-                paths.append()
+                paths.append(path)
         else:
             click.echo(f"{input_path.relative_to(root_dir)}: no such file", err=True)
             continue
-    all_metadata = {}
-    site_metadata = None
-    for file_path in paths:
-        metadata = get_markdown_metadata(
-            file_path.read_text(encoding=options.get("encoding"))
-        )
-        all_metadata[file_path] = metadata
-        if file_path.name == "index.md":
-            site_metadata = metadata
-    if site_metadata:
-        if "private" in site_metadata:
-            private = {k.strip() for k in site_metadata.pop("private").split(",")}
-        else:
-            private = None
-        for metadata in all_metadata.values():
-            if metadata is site_metadata:
-                continue
-            for k, v in site_metadata.items():
-                if private and k in private:
-                    continue
-                metadata.setdefault(k, v)
-            metadata["site_title"] = site_metadata.get("title")
-    common_prefix = pathlib.Path(os.path.commonprefix(paths)).relative_to(root_dir)
-    for file_path in paths:
-        metadata = all_metadata[file_path]
-        store = dict(all_metadata=all_metadata)
-        try:
-            output_path = converter.convert(
-                file_path,
-                root_dir=root_dir,
-                common_prefix=common_prefix,
-                store=store,
-                **metadata,
-            )
-        except jinja2.exceptions.TemplateNotFound as e:
-            click.echo(f"{file_path}: no template found named '{e}'", err=True)
-        except jinja2.exceptions.TemplateSyntaxError as e:
-            click.echo(f"{file_path}: {e.name} line {e.lineno}: {e}", err=True)
-        except jinja2.exceptions.TemplateError as e:
-            click.echo(f"{file_path}: {e}", err=True)
-        else:
-            click.echo(
-                f"{file_path.relative_to(root_dir)} "
-                f"-> {output_path.relative_to(root_dir)}"
-            )
-            continue
+    # The ordering is important for metadata inheritance
+    paths.sort(key=lambda path: (path.parent, path.name != "index.md", path.name))
+    return paths

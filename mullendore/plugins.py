@@ -1,10 +1,11 @@
 import jinja2
 import pathlib
 
-from typing import Callable, Mapping, Optional, Union
+from typing import Callable, Optional, Union, Any
 
 from mullendore.markdown import markdown_to_html
 
+Pathlike = Union[str, pathlib.Path]
 
 plugin_functions = {}
 plugin_filters = {}
@@ -14,22 +15,22 @@ def template_function(func: Callable) -> Callable:
     """
     Decorator to make a function available in templates.
     """
-    func = jinja2.contextfunction(func)
-    plugin_functions[func.__name__] = func
-    return func
+    ctxfunc: Callable = jinja2.contextfunction(func)
+    plugin_functions[ctxfunc.__name__] = ctxfunc
+    return ctxfunc
 
 
 def template_filter(func: Callable) -> Callable:
     """
     Decorator to make a function available as a filter in templates.
     """
-    func = jinja2.contextfilter(func)
-    plugin_filters[func.__name__] = func
-    return func
+    ctxfilter: Callable = jinja2.contextfilter(func)
+    plugin_filters[ctxfilter.__name__] = ctxfilter
+    return ctxfilter
 
 
 @template_function
-def debug(ctx: Mapping, text: str) -> jinja2.Markup:
+def debug(ctx: jinja2.runtime.Context, text: str) -> jinja2.Markup:
     """
     Debug print from templates.
     """
@@ -38,7 +39,7 @@ def debug(ctx: Mapping, text: str) -> jinja2.Markup:
 
 
 @template_filter
-def markdown(ctx: Mapping, text: str) -> jinja2.Markup:
+def markdown(ctx: jinja2.runtime.Context, text: str) -> jinja2.Markup:
     """
     Template filter for converting Markdown to HTML.
     """
@@ -46,40 +47,38 @@ def markdown(ctx: Mapping, text: str) -> jinja2.Markup:
     previously_in_markdown = store.get("in_markdown", False)
     if not previously_in_markdown:
         store["in_markdown"] = True
-        html = markdown_to_html(text, ctx.parent, skip_toc=True)
+        parent: Any = ctx.parent
+        html = markdown_to_html(text, parent, skip_toc=True)
         store["in_markdown"] = previously_in_markdown
         return jinja2.Markup(html)
-    return text
+    return jinja2.Markup(text)
 
 
 @template_function
-def here(ctx: Mapping) -> pathlib.Path:
+def here(ctx: jinja2.runtime.Context) -> Optional[pathlib.Path]:
     """
     Return the path of the current template.
     """
-    store = ctx["store"]
-    paths = store.get("paths")
-    path = paths[-1] if paths else pathlib.Path(".")
-    return path.parent
+    templates = ctx["store"].get("here")
+    return templates[-1].filepath.parent if templates else None
 
 
 @template_filter
-def href(ctx: Mapping, path: Union[str, pathlib.Path]) -> jinja2.Markup:
+def href(ctx: jinja2.runtime.Context, pathlike: Pathlike) -> jinja2.Markup:
     """
     Convert a local path to a href link.
     """
-    if type(path) is str:
-        path = pathlib.Path(path)
+    path = pathlib.Path(pathlike) if isinstance(pathlike, str) else pathlike
     if not path.is_absolute():
-        path = here(ctx).joinpath(path)
+        path = ctx["root_dir"] / ctx["common_prefix"] / path
+    path = path.relative_to(ctx["root_dir"])
     if path.suffix == ".md":
         path = path.with_suffix(".html")
-    path = str(path.relative_to(ctx["root_dir"]))
     return jinja2.Markup(f"/{path}")
 
 
 @template_function
-def toc(ctx: Mapping) -> jinja2.Markup:
+def toc(ctx: jinja2.runtime.Context) -> jinja2.Markup:
     """
     Return previously generated TOC.
     """
@@ -87,7 +86,9 @@ def toc(ctx: Mapping) -> jinja2.Markup:
 
 
 @template_function
-def glob(ctx: Mapping, pattern: str = "*", exclude: Optional[list] = None):
+def glob(
+    ctx: jinja2.runtime.Context, pattern: str = "*", exclude: Optional[list] = None
+):
     path = pathlib.Path(pattern)
     if not path.is_absolute():
         path = here(ctx).joinpath(path)
@@ -101,24 +102,21 @@ def glob(ctx: Mapping, pattern: str = "*", exclude: Optional[list] = None):
 
 
 @template_function
-def menu_links(ctx: Mapping) -> str:
-    all_metadata = ctx["store"].get("all_metadata") or {}
+def menu_links(ctx: jinja2.runtime.Context) -> str:
+    pages = ctx["pages"] or {}
     out = ""
-    for path, metadata in sorted(
-        all_metadata.items(), key=lambda item: item[1].get("menu-item") or ""
+    for path, template in sorted(
+        pages.items(), key=lambda item: item[1].metadata.get("menu-item", 0)
     ):
-        if not metadata.get("menu-item") or not metadata.get("title"):
+        if "menu-item" not in template.metadata or "title" not in template.metadata:
             continue
-        if str(path) == "index.md":
-            continue
-        out += f'<a href="{href(ctx, path)}">{metadata.get("title")}</a>\n'
+        out += f'<a href="{href(ctx, path)}">{template.metadata.get("title")}</a>\n'
     return out
 
 
 @template_function
-def list_files(ctx: Mapping, path: Union[pathlib.Path, str]) -> str:
-    if type(path) is str:
-        path = pathlib.Path(path)
+def list_files(ctx: jinja2.runtime.Context, pathlike: Pathlike) -> str:
+    path = pathlib.Path(pathlike) if isinstance(pathlike, str) else pathlike
     out = "<ul>\n"
     for filepath in sorted(path.glob("*")):
         if filepath.name.startswith("."):
@@ -132,13 +130,12 @@ def list_files(ctx: Mapping, path: Union[pathlib.Path, str]) -> str:
 
 @template_function
 def include_section(
-    ctx: Mapping,
-    path: Union[pathlib.Path, str],
+    ctx: jinja2.runtime.Context,
+    pathlike: Pathlike,
     header: str,
     include_blockquotes: bool = False,
 ) -> str:
-    if type(path) is str:
-        path = pathlib.Path(path)
+    path = pathlib.Path(pathlike) if isinstance(pathlike, str) else pathlike
     out = []
     level = 0
     for line in path.read_text().splitlines():

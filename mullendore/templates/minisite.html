@@ -3,7 +3,7 @@
 {% if style != '_default.css' %}
 {% include style %}
 {% endif %}
-{% include '_minisite.css' %}
+{% include '_minisite.css' with context %}
 {% endblock %}
 {% block page %}
 <div class="col page flex">
@@ -29,7 +29,7 @@
         </div>
     </div>
     <div class="col footer cross-center">
-        {%- block footer %}{{ footer|markdown }}{% endblock %}
+        {%- block footer %}{{ footer|markdown if footer else '' }}{% endblock %}
     </div>
 </div>
 {% endblock %}

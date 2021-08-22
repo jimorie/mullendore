@@ -1,225 +1,136 @@
-@media print {
-  *,
-  *:before,
-  *:after {
-    background: transparent !important;
-    color: #000 !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-  }
-
-  a,
-  a:visited {
-    text-decoration: underline;
-  }
-
-  a[href]:after {
-    content: " (" attr(href) ")";
-  }
-
-  abbr[title]:after {
-    content: " (" attr(title) ")";
-  }
-
-  a[href^="#"]:after,
-  a[href^="javascript:"]:after {
-    content: "";
-  }
-
-  pre,
-  blockquote {
-    border: 1px solid #999;
-    page-break-inside: avoid;
-  }
-
-  thead {
-    display: table-header-group;
-  }
-
-  tr,
-  img {
-    page-break-inside: avoid;
-  }
-
-  img {
-    max-width: 100% !important;
-  }
-
-  p,
-  h2,
-  h3 {
-    orphans: 3;
-    widows: 3;
-  }
-
-  h2,
-  h3 {
-    page-break-after: avoid;
-  }
-}
-
-html {
-  font-size: 12px;
-}
-
-@media screen and (min-width: 32rem) and (max-width: 48rem) {
-  html {
-    font-size: 15px;
-  }
-}
-
-@media screen and (min-width: 48rem) {
-  html {
-    font-size: 16px;
-  }
-}
-
-body {
-  line-height: 1.85;
-}
-
-p,
-.splendor-p {
-  font-size: 1rem;
-  margin-bottom: 1rem;
-}
-
-h1,
-.splendor-h1,
-h2,
-.splendor-h2,
-h3,
-.splendor-h3,
-h4,
-.splendor-h4 {
-  margin: 1.414rem 0 .5rem;
-  font-weight: inherit;
-  line-height: 1.42;
-}
-
-h1,
-.splendor-h1 {
-  margin-top: 0;
-  font-size: 3.998rem;
-}
-
-h2,
-.splendor-h2 {
-  font-size: 2.827rem;
-}
-
-h3,
-.splendor-h3 {
-  font-size: 1.999rem;
-}
-
-h4,
-.splendor-h4 {
-  font-size: 1.414rem;
-}
-
-h5,
-.splendor-h5 {
-  font-size: 1.121rem;
-}
-
-h6,
-.splendor-h6 {
-  font-size: .88rem;
-}
-
-small,
-.splendor-small {
-  font-size: .707em;
-}
-
-/* https://github.com/mrmrs/fluidity */
-
-img,
-canvas,
-iframe,
-video,
-svg,
-select,
-textarea {
-  max-width: 100%;
-}
-
 @import url(http://fonts.googleapis.com/css?family=Merriweather:300italic,300);
 
-html {
-  font-size: 18px;
-  max-width: 100%;
+html, body {
+    font-family: 'Merriweather', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-content: flex-start;
+    color: {{ foreground_color or '#444' }};
+    background-color: {{ background_color or '#fdfaf1' }};
+    margin: 0;
+    max-width: 100%;
+    font-size: 1rem;
+    line-height: 1.5;
 }
-
-body {
-  color: #444;
-  font-family: 'Merriweather', Georgia, serif;
-  margin: 0;
-  max-width: 100%;
-}
-
-/* === A bit of a gross hack so we can have bleeding divs/blockquotes. */
-
-p,
-*:not(div):not(img):not(body):not(html):not(li):not(blockquote):not(p) {
-  margin: 1rem auto 1rem;
-  max-width: 36rem;
-  padding: .25rem;
-}
-
-div {
-  width: 100%;
-}
-
-div img {
-  width: 100%;
-}
-
-blockquote p {
-  font-size: 1.5rem;
-  font-style: italic;
-  margin: 1rem auto 1rem;
-  max-width: 48rem;
-}
-
-li {
-  margin-left: 2rem;
-}
-
-/* Counteract the specificity of the gross *:not() chain. */
-
-h1 {
-  padding: 4rem 0 !important;
-}
-
-/*  === End gross hack */
 
 p {
-  color: #555;
-  height: auto;
   line-height: 1.45;
+  margin: 1.3rem 0;
+  text-align: justify;
 }
 
-pre,
 code {
   font-family: Menlo, Monaco, "Courier New", monospace;
 }
 
 pre {
-  background-color: #fafafa;
-  font-size: .8rem;
+  font-family: Menlo, Monaco, "Courier New", monospace;
   overflow-x: scroll;
-  padding: 1.125em;
+}
+
+blockquote {
+    font-style: italic;
+    padding: 0.5rem;
+    border-left: solid 2px {{ foreground_color or '#444' }};
+    margin: -0.5rem 0 1.3rem 1.8rem;
+    background-color: {{ background_color_darker or '#edeae1' }};
+    border-radius: 0.25rem;
+}
+
+h1 {
+  margin: 2rem 0 1.3rem 0;
+  font-size: 3rem;
+  text-align: center;
+}
+
+h2 {
+  margin: 2rem 0 1.3rem 0;
+  font-size: 2.5rem;
+  border-bottom: solid 2px {{ foreground_color or '#444' }};
+}
+
+h3 {
+  margin: 2rem 0 1rem 0;
+  font-size: 2.25rem;
+}
+
+h4 {
+  margin: 1.3rem 0 1rem 0;
+  font-size: 1.75rem;
+}
+
+h5, h6 {
+  margin: 1.3rem 0 1rem 0;
+  font-size: 1.25rem;
+}
+
+small {
+  font-size: .75em;
 }
 
 a,
 a:visited {
-  color: #3498db;
+  color: {{ link_color or '#3498db' }};
 }
 
 a:hover,
 a:focus,
 a:active {
-  color: #2980b9;
+  color: {{ link_color_hover or '#2980b9' }};
+}
+
+a.reference,
+a.reference:visited {
+  color: {{ foreground_color or '#444' }};
+  text-decoration: underline;
+  text-decoration-color: {{ foreground_color_lighter or '#dddad1' }};
+  text-decoration-style: solid;
+}
+
+a.reference:hover,
+a.reference:focus,
+a.reference:active {
+  text-decoration-color: {{ foreground_color or '#444' }};
+}
+
+table {
+    margin: 1.3rem 0 1.3rem 2.0rem;
+    padding: 0;
+    border-spacing: 0;
+    min-width: 50%;
+}
+
+table td, table th {
+    padding: 0.1rem 0.5rem;
+}
+
+table thead tr {
+    border: none;
+    padding: 0;
+    margin: 0;
+    background-color: {{ foreground_color or '#444' }};
+    color: {{ background_color or 'white' }};
+    text-align: left;
+}
+
+table tbody tr:nth-child(even) {
+    background-color: {{ background_color_darker or '#edeae1' }};
+}
+
+p > ul,
+p > ol,
+div > ul,
+div > ol {
+  margin: 1.3rem 0;
+}
+
+li > p, blockquote > p {
+    margin: 0;
+    padding: 0;
+}
+
+ul, ol {
+  padding-left: 2.5rem;
+  position: relative;
 }

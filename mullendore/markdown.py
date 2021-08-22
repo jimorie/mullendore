@@ -1,11 +1,12 @@
 import html
+import jinja2
 import markdown2
 import pathlib
 import re
 
-from typing import Callable, Optional, Mapping
+from mullendore.git import GitRepo, CommitMap
 
-from mullendore.git import GitRepo
+from typing import Callable, Dict, List
 
 
 preprocessors = []
@@ -32,13 +33,13 @@ def pass_context(func: Callable) -> Callable:
     """
     Decorator to mark a markdown processor to have context passed to it.
     """
-    func.pass_context = True
+    setattr(func, "pass_context", True)
     return func
 
 
 @markdown_preprocessor
 @pass_context
-def show_changes_since(ctx, text):
+def show_changes_since(ctx: jinja2.runtime.Context, text: str) -> str:
     """
     Show changes from the git blame data for each header. This preprocessor
     must run first, since it relies on the line numbers from the checked in
@@ -51,15 +52,12 @@ def show_changes_since(ctx, text):
     file_path = pathlib.Path(ctx.get("body")).resolve()
     repo = GitRepo(file_path.parent)
     commits = repo.blame_file(file_path, changes_since=changes_since)
-    lines = enumerate(text.splitlines(), 1)
-    next(lines)  # Ignore first --- line
-    for _, line in lines:
-        if line.startswith("---"):
-            break
-    changes = {}
-    out = []
+    lines = enumerate(text.splitlines(), ctx.get("metadata_linecount", 0) + 1)
+    changes: CommitMap = {}
+    out: List[str] = []
+    body: List[str] = []
     header = None
-    body = []
+
     def add_section(header, body, changes, out):
         if header:
             if changes:
@@ -87,6 +85,7 @@ def show_changes_since(ctx, text):
         out.extend(body)
         body.clear()
         changes.clear()
+
     for line_num, line in lines:
         if line.startswith("#"):
             add_section(header, body, changes, out)
@@ -281,14 +280,9 @@ def header_sections(text):
 class Markdown(markdown2.Markdown):
     def __init__(self, *args, **kwargs):
         if "extras" not in kwargs:
-            kwargs["extras"] = ["toc", "metadata", "smarty-pants"]
+            kwargs["extras"] = ["toc", "smarty-pants"]
         markdown2.Markdown.__init__(self, *args, **kwargs)
         self.ctx = None
-
-    def _extract_metadata(self, text):
-        if text.startswith("---"):
-            return markdown2.Markdown._extract_metadata(self, text)
-        return text
 
     def header_id_from_text(self, text, prefix, n):
         if "/" in text:
@@ -311,9 +305,7 @@ class Markdown(markdown2.Markdown):
 markdowner = Markdown()
 
 
-def markdown_to_html(
-    text: str, ctx: Optional[Mapping] = None, skip_toc: bool = False
-) -> str:
+def markdown_to_html(text: str, ctx: Dict, skip_toc: bool = False) -> str:
     """
     Convert Markdown text to HTML.
     """
@@ -333,7 +325,7 @@ def markdown_to_html(
 simple_markdowner = Markdown(extras=["smarty-pants"])
 
 
-def simple_markdown_to_html(text: str, ctx: Optional[Markdown] = None) -> str:
+def simple_markdown_to_html(text: str) -> str:
     if not text.strip():
         return text
     html = simple_markdowner.convert(text)
@@ -343,12 +335,6 @@ def simple_markdown_to_html(text: str, ctx: Optional[Markdown] = None) -> str:
     if html.endswith("</p>"):
         html = html[: -len("</p>")]
     return html
-
-
-def get_markdown_metadata(text: str) -> dict:
-    markdowner.metadata = {}
-    markdowner._extract_metadata(text)
-    return markdowner.metadata
 
 
 def _preprocess(ctx, text):
