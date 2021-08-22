@@ -12,7 +12,8 @@ from mullendore.templates import Loader, Environment
 from mullendore.types import Metadata
 
 
-Reference = Tuple[re.Pattern, str, pathlib.Path, str]
+ReferencesMetadata = Dict[str, Tuple[str, pathlib.Path, str]]
+References = Tuple[re.Pattern, ReferencesMetadata]
 
 
 class Converter:
@@ -34,7 +35,7 @@ class Converter:
                 options["reference"], options["root"]
             )
         else:
-            self.references = []
+            self.references = None
 
     def get_template(self, path: Union[str, pathlib.Path]) -> jinja2.Template:
         """
@@ -148,10 +149,12 @@ class Converter:
 
     def _build_references(
         self, path: pathlib.Path, root_dir: pathlib.Path
-    ) -> List[Reference]:
+    ) -> References:
         store: Dict = dict()
         markdown_to_html(path.read_text(encoding=self.encoding), dict(store=store))
-        references = []
+        regexes = []
+        metadata = {}
+        index = 1
         for level, anchor, name in store["toc_list"]:
             if level != 2:
                 continue
@@ -163,14 +166,14 @@ class Converter:
                 alias = alias.strip()
                 if not alias:
                     continue
-                pat = re.compile(f"\\b({alias}s?)\\b", re.IGNORECASE)
-                references.append(
-                    (
-                        pat,
-                        f"/{path.relative_to(root_dir).with_suffix('.html')}#{anchor}",
-                        path,
-                        anchor,
-                    )
+                group = f"g{index}"
+                index += 1
+                regexes.append(f"(?P<{group}>\\b({alias}s?)\\b)")
+                metadata[group] = (
+                    f"/{path.relative_to(root_dir).with_suffix('.html')}#{anchor}",
+                    path,
+                    anchor,
                 )
-        references.sort(key=lambda ref: len(ref[0].pattern), reverse=True)
-        return references
+        regexes.sort(key=lambda regex: len(regex), reverse=True)
+        pattern = re.compile("|".join(regexes), re.IGNORECASE)
+        return (pattern, metadata)

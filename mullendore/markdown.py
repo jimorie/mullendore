@@ -173,18 +173,25 @@ def link_references(ctx, text):
     references = ctx.get("references")
     if not references:
         return text
+    pattern, metadata = references
     dont_touch = {"a", "span", "h1", "h2", "h3", "h4", "h5", "h6"}
-    for pattern, url, path, anchor in references:
-        tmp = ""
-        for part, tags, headers in _body_parts(text):
-            if tags is None or dont_touch.intersection(tags):
-                tmp += part
-            elif path == file_path and anchor in (a for _, a in headers):
-                tmp += pattern.sub(f'<span class="self-reference">\\1</span>', part)
+    linked_text = ""
+    for part, tags, headers in _body_parts(text):
+        if tags is None or dont_touch.intersection(tags):
+            linked_text += part
+            continue
+        lastend = 0
+        for match in pattern.finditer(part):
+            start, end = match.span()
+            linked_text += part[lastend:start]
+            url, path, anchor = metadata[match.lastgroup]
+            if path == file_path and anchor in (a for _, a in headers):
+                linked_text += f'<span class="self-reference">{match.group()}</span>'
             else:
-                tmp += pattern.sub(f'<a class="reference" href="{url}">\\1</a>', part)
-        text = tmp
-    return text
+                linked_text += f'<a class="reference" href="{url}">{match.group()}</a>'
+            lastend = end
+        linked_text += part[lastend:]
+    return linked_text
 
 
 _html_id_pattern = re.compile(' id="(.*?)"')
