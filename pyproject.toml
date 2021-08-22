@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mullendore"
-version = "0.1.0"
+version = "0.2.0"
 description = "A converter and templating tool for Markdown documents."
 authors = ["Petter Nyström"]
 
