@@ -3,6 +3,7 @@ import os
 import jinja2
 import pathlib
 import re
+import time
 
 from typing import Union, Dict, List, Tuple
 
@@ -111,6 +112,8 @@ class Converter:
             jinja2.exceptions.TemplateError: If there was a template rendering issue.
         """
 
+        starttime = time.time()
+
         root_dir = ctx_vars["root_dir"]
 
         click.echo(f"{input_path.relative_to(root_dir)}...", nl=False)
@@ -143,7 +146,10 @@ class Converter:
         with output_path.open("w") as output_fh:
             output_fh.write(template.render(**ctx_vars))
 
-        click.echo(f" -> {output_path.relative_to(root_dir)}")
+        click.echo(
+            f" -> {output_path.relative_to(root_dir)} "
+            f"({(time.time() - starttime):.2f} s)"
+        )
 
         return output_path
 
