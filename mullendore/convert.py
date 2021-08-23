@@ -162,18 +162,19 @@ class Converter:
                 aliases = name.split("/")
             else:
                 aliases = [name]
+            data = [
+                f"/{path.relative_to(root_dir).with_suffix('.html')}#{anchor}",
+                path,
+                anchor,
+            ]
             for alias in aliases:
                 alias = alias.strip()
                 if not alias:
                     continue
                 group = f"g{index}"
                 index += 1
-                regexes.append(f"(?P<{group}>\\b({alias}s?)\\b)")
-                metadata[group] = (
-                    f"/{path.relative_to(root_dir).with_suffix('.html')}#{anchor}",
-                    path,
-                    anchor,
-                )
+                metadata[group] = data
+                regexes.append(f"(?P<{group}>\\b({re.escape(alias)}s?)\\b)")
         regexes.sort(key=lambda regex: len(regex), reverse=True)
         pattern = re.compile("|".join(regexes), re.IGNORECASE)
         return (pattern, metadata)

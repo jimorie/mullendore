@@ -176,21 +176,20 @@ def link_references(ctx, text):
     pattern, metadata = references
     dont_touch = {"a", "span", "h1", "h2", "h3", "h4", "h5", "h6"}
     linked_text = ""
-    for part, tags, headers in _body_parts(text):
-        if tags is None or dont_touch.intersection(tags):
-            linked_text += part
+    for pos, endpos, tags, headers in _body_parts(text):
+        if tags is None or any(tag in dont_touch for tag in tags):
+            linked_text += text[pos:endpos]
             continue
-        lastend = 0
-        for match in pattern.finditer(part):
-            start, end = match.span()
-            linked_text += part[lastend:start]
+        for match in pattern.finditer(text, pos, endpos):
+            matchpos, matchendpos = match.span()
+            linked_text += text[pos:matchpos]
             url, path, anchor = metadata[match.lastgroup]
             if path == file_path and anchor in (a for _, a in headers):
                 linked_text += f'<span class="self-reference">{match.group()}</span>'
             else:
                 linked_text += f'<a class="reference" href="{url}">{match.group()}</a>'
-            lastend = end
-        linked_text += part[lastend:]
+            pos = matchendpos
+        linked_text += text[pos:endpos]
     return linked_text
 
 
@@ -200,37 +199,35 @@ _html_id_pattern = re.compile(' id="(.*?)"')
 def _body_parts(text):
     tags = []
     headers = []
-    tmp = text
-    while tmp:
-        i = tmp.find("<")
-        if i < 0:
+    pos = 0
+    while pos < len(text):
+        tagpos = text.find("<", pos)
+        if tagpos < 0:
             break
-        yield tmp[:i], tags, headers
-        tmp = tmp[i:]
-        if tmp.startswith("</"):
+        yield pos, tagpos, tags, headers
+        # Keep track of tags
+        endpos = text.find(">", tagpos)
+        if text[tagpos + 1] == "/":
             tags.pop()
-        else:
-            i = min(tmp.find(" "), tmp.find(">"))
-            tag = tmp[1:i]
+        elif text[endpos - 1] != "/":
+            try:
+                tag, _ = text[tagpos + 1 : endpos].split(" ", 1)
+            except ValueError:
+                tag = text[tagpos + 1 : endpos]
             tags.append(tag)
             # Keep track of headers
-            if tag.startswith("h"):
+            if tag[0] == "h":
                 try:
                     level = int(tag[1])
-                    header_id = _html_id_pattern.search(tmp).group(1)
-                    while headers:
-                        if headers[-1][0] < level:
-                            break
+                    header_id = _html_id_pattern.search(text, tagpos, endpos).group(1)
+                    while headers and headers[-1][0] >= level:
                         headers.pop()
                     headers.append((level, header_id))
                 except (ValueError, AttributeError):
                     pass
-        i = tmp.find(">")
-        if tmp[i - 1] == "/":
-            tags.pop()
-        yield tmp[: i + 1], None, headers
-        tmp = tmp[i + 1 :]
-    yield tmp, tags, headers
+        yield tagpos, endpos, None, headers
+        pos = endpos
+    yield pos, len(text), tags, headers
 
 
 _html_img_pattern = re.compile(r"<img .*?/>")
