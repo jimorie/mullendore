@@ -18,10 +18,12 @@ class Template(wrapt.ObjectProxy):
     def render(self, **ctx):
         ctx["store"].setdefault("here", [])
         ctx["store"]["here"].append(self)
-        if self.filename.endswith(".md") and "in_markdown" not in ctx["store"]:
+        previously_in_markdown = ctx["store"].get("in_markdown", False)
+        if self.filename.endswith(".md") and not previously_in_markdown:
             ctx["store"]["in_markdown"] = True
             result = self.__wrapped__.render(**ctx)
             result = markdown_to_html(result, ctx)
+            ctx["store"]["in_markdown"] = False
         else:
             result = self.__wrapped__.render(**ctx)
         ctx["store"]["here"].pop()
@@ -30,10 +32,12 @@ class Template(wrapt.ObjectProxy):
     def root_render_func(self, ctx):
         ctx["store"].setdefault("here", [])
         ctx["store"]["here"].append(self)
-        if self.filename.endswith(".md") and "in_markdown" not in ctx["store"]:
+        previously_in_markdown = ctx["store"].get("in_markdown", False)
+        if self.filename.endswith(".md") and not previously_in_markdown:
             ctx["store"]["in_markdown"] = True
             result = jinja2.utils.concat(self.__wrapped__.root_render_func(ctx))
             result = markdown_to_html(result, ctx)
+            ctx["store"]["in_markdown"] = False
         else:
             result = jinja2.utils.concat(self.__wrapped__.root_render_func(ctx))
         ctx["store"]["here"].pop()
@@ -160,50 +164,3 @@ class Loader(jinja2.BaseLoader):
                         path = pathlib.Path(filename).resolve().parent / path
                     metadata[k] = path
         return metadata
-
-
-"""
-
-    @jinja2.utils.internalcode
-    def load(
-        self,
-        environment: jinja2.Environment,
-        name: Union[str, pathlib.Path],
-        globals: dict = None,
-    ) -> jinja2.Template:
-        if isinstance(name, pathlib.Path):
-            name = str(name.resolve())
-        template = jinja2.FileSystemLoader.load(
-            self, environment, name, globals=globals
-        )
-        root_render_func = template.root_render_func
-
-        def render_func(
-            ctx,
-            *args,
-            name=name,
-            path=getattr(environment, "last_loaded_path", None),
-            root_render_func=root_render_func,
-            **kwargs,
-        ):
-            store = ctx["store"]
-            if "paths" not in store:
-                store["paths"] = []
-            store["paths"].append(path)
-            # Don't convert child Markdown twice
-            previously_in_markdown = store.get("in_markdown", False)
-            if name.endswith(".md") and not previously_in_markdown:
-                store["in_markdown"] = True
-                html = markdown_to_html(
-                    jinja2.utils.concat(root_render_func(ctx, *args, **kwargs)),
-                    ctx.parent,
-                )
-                store["in_markdown"] = previously_in_markdown
-                yield html
-            else:
-                yield from root_render_func(ctx, *args, **kwargs)
-            store["paths"].pop()
-
-        template.root_render_func = render_func
-        return template
-"""

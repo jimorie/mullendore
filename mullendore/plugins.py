@@ -49,7 +49,7 @@ def markdown(ctx: jinja2.runtime.Context, text: str) -> jinja2.Markup:
         store["in_markdown"] = True
         parent: Any = ctx.parent
         html = markdown_to_html(text, parent, skip_toc=True)
-        store["in_markdown"] = previously_in_markdown
+        store["in_markdown"] = False
         return jinja2.Markup(html)
     return jinja2.Markup(text)
 
