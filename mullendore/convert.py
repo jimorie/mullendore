@@ -167,6 +167,8 @@ class Converter:
         for level, anchor, name in store["toc_list"]:
             if level not in levels:
                 continue
+            if "//" in name:
+                _, name = name.split("//")
             if "/" in name:
                 aliases = name.split("/")
             else:
