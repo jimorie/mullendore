@@ -175,7 +175,7 @@ class Converter:
             else:
                 options = {}
             if "//" in name:
-                _, name = name.split("//")
+                _, name = name.split("//", 1)
             if "/" in name:
                 aliases = name.split("/")
             else:
