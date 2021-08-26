@@ -5,7 +5,7 @@ import pathlib
 import re
 import time
 
-from typing import Union, Dict, List, Tuple
+from typing import Union, Dict, List, Tuple, Iterable
 
 from mullendore.markdown import markdown_to_html
 from mullendore.plugins import plugin_functions, plugin_filters
@@ -33,7 +33,9 @@ class Converter:
             self.env.globals.update(os.environ)
         if options["reference"]:
             self.references = self._build_references(
-                options["reference"], options["root"]
+                options["reference"],
+                options["root"],
+                options["reference_level"] or [2],
             )
         else:
             self.references = None
@@ -154,15 +156,16 @@ class Converter:
         return output_path
 
     def _build_references(
-        self, path: pathlib.Path, root_dir: pathlib.Path
+        self, path: pathlib.Path, root_dir: pathlib.Path, levels: Iterable[int]
     ) -> References:
         store: Dict = dict()
-        markdown_to_html(path.read_text(encoding=self.encoding), dict(store=store))
+        ctx: Dict = dict(store=store)
+        markdown_to_html(path.read_text(encoding=self.encoding), ctx)
         regexes = []
         metadata = {}
         index = 1
         for level, anchor, name in store["toc_list"]:
-            if level != 2:
+            if level not in levels:
                 continue
             if "/" in name:
                 aliases = name.split("/")

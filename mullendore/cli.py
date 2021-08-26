@@ -68,6 +68,12 @@ AllMetadata = Mapping[pathlib.Path, Metadata]
     ),
 )
 @click.option(
+    "--reference-level",
+    type=int,
+    help="Header level used for references.",
+    multiple=True,
+)
+@click.option(
     "--encoding", type=str, default="utf-8", help="Encoding used in the files."
 )
 def main(args: List[str], **options):
