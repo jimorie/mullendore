@@ -291,6 +291,8 @@ class Markdown(markdown2.Markdown):
     def header_id_from_text(self, text, prefix, n):
         if "/" in text:
             text, _ = text.split("/", 1)
+        if "{" in text:
+            text, _ = text.split("{", 1)
         if "<" in text:
             text, _ = text.split("<", 1)
         return markdown2.Markdown.header_id_from_text(self, text, prefix, n)
@@ -300,9 +302,10 @@ class Markdown(markdown2.Markdown):
         # Hide reference aliases
         start = html.find(">")
         end = html.find("<", start)
-        slash = html.find("/", start, end)
-        if slash >= 0:
-            html = html[:slash] + html[end:]
+        for sep in "/{":
+            i = html.find(sep, start, end)
+            if i >= 0:
+                html = html[:i] + html[end:]
         return html
 
 
@@ -400,6 +403,8 @@ def _calculate_toc_html(toc, ol_levels=None):
             tag = ""
         if "/" in name:
             name, _ = name.split("/", 1)
+        if "{" in name:
+            name, _ = name.split("{", 1)
         # Open new LI element with link at this level
         lines.append(f'<li>\n<a href="#{anchor}">{name.strip()}</a>{tag}')
         li_stack.append(level)

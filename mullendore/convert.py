@@ -4,6 +4,7 @@ import jinja2
 import pathlib
 import re
 import time
+import yaml
 
 from typing import Union, Dict, List, Tuple, Iterable
 
@@ -167,6 +168,12 @@ class Converter:
         for level, anchor, name in store["toc_list"]:
             if level not in levels:
                 continue
+            if "{" in name:
+                i = name.find("{")
+                options = yaml.safe_load(name[i:])
+                name = name[:i]
+            else:
+                options = {}
             if "//" in name:
                 _, name = name.split("//")
             if "/" in name:
@@ -185,7 +192,12 @@ class Converter:
                 group = f"g{index}"
                 index += 1
                 metadata[group] = data
-                regexes.append(f"(?P<{group}>\\b({re.escape(alias)}s?)\\b)")
+                flags = ""
+                if not options.get("case"):
+                    flags += "i"
+                if flags:
+                    flags = f"?{flags}:"
+                regexes.append(f"(?P<{group}>\\b({flags}{re.escape(alias)}s?)\\b)")
         regexes.sort(key=lambda regex: len(regex), reverse=True)
-        pattern = re.compile("|".join(regexes), re.IGNORECASE)
+        pattern = re.compile("|".join(regexes))
         return (pattern, metadata)
