@@ -51,6 +51,10 @@ class Template(wrapt.ObjectProxy):
 
 
 class Context(jinja2.runtime.Context):
+    """
+    TODO: Figure out if this class is necessary. Currently `template_stack` is
+    not used anywhere.
+    """
     def __init__(self, environment, parent, name, blocks):
         super().__init__(environment, parent, name, blocks)
         self.template_stack = []
@@ -146,7 +150,7 @@ class Loader(jinja2.BaseLoader):
         while True:
             linecount += 1
             line = fh.readline()
-            if not line or line == "---\n":
+            if not line or line == "---\n" or line == "...\n":
                 break
             blob += line
         metadata = yaml.safe_load(blob)
