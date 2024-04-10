@@ -168,7 +168,7 @@ ul, ol {
     background-repeat: no-repeat;
     {%- endif %}
     background-color: {{ banner_background_color or '#111' }};
-    height: 25vw;
+    height: {{ header_height or '25vw' }};
     padding: 2rem 5vw;
 }
 
