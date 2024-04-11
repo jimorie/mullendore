@@ -108,9 +108,11 @@ def menu_links(ctx: jinja2.runtime.Context) -> str:
     for path, template in sorted(
         pages.items(), key=lambda item: item[1].metadata.get("menu-item", 0)
     ):
-        if "menu-item" not in template.metadata or "title" not in template.metadata:
-            continue
-        out += f'<a href="{href(ctx, path)}">{template.metadata.get("title")}</a>\n'
+        if "menu-item" in template.metadata and "title" in template.metadata:
+            out += f'<a href="{href(ctx, path)}">{template.metadata.get("title")}</a>\n'
+    if "menu-items" in ctx:
+        for item in ctx.get("menu-items"):
+            out += f'<a href="{href(ctx, item["href"])}">{item["name"]}</a>\n'
     return out
 
 
