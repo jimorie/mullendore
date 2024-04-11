@@ -9,7 +9,7 @@
 <div class="col page flex">
     <div class="col header">
         <a class="col flex" href="/{{ common_prefix.joinpath('index.html') }}">
-            {% block header %}{{ site_title or title }}{% endblock %}
+            {% block header %}{{ banner_title or site_title or title }}{% endblock %}
         </a>
     </div>
     <div class="row-when-medium menubar">
@@ -23,9 +23,11 @@
             <div class="body textcolumn">
                 {%- block content %}{% include body %}{% endblock %}
             </div>
+            {%- if not no_toc %}
             <div class="sidebar">
                 {{- toc() }}
             </div>
+            {%- endif %}
         </div>
     </div>
     <div class="col footer cross-center">

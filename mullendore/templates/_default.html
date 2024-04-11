@@ -3,12 +3,16 @@
 <head>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta charset="{{ encoding }}">
-<title>{% block title %}{{ site_title or title }}{% endblock %}</title>
+<title>{% block title %}{{ site_title or banner_title or title }}{% endblock %}</title>
 <style>
 {% block style %}{% include style %}{% endblock %}
 </style>
 </head>
 <body>
+<div id="page">
+<div id="content">
 {% block page %}{% include body %}{% endblock %}
+</div>
+</div>
 </body>
 </html>
