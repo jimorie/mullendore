@@ -85,7 +85,10 @@ def main(args: List[str], **options):
     root_dir = options["root"]
     converter = Converter(options)
     paths = resolve_paths(args, root_dir, options["recursive"])
-    common_prefix = pathlib.Path(os.path.commonprefix(paths)).relative_to(root_dir)
+    if len(paths) <= 1:
+        common_prefix = paths[0].parent.relative_to(root_dir)
+    else:
+        common_prefix = pathlib.Path(os.path.commonprefix(paths)).relative_to(root_dir)
     converter.convert_all(
         paths, root_dir=root_dir, common_prefix=common_prefix, store=dict()
     )
